@@ -116,11 +116,42 @@
         .on('mouseenter', (d, i) => {
             d3.select('#tooltip')
                 .style('left', `${scaleX(d[0]) + 20}px`)
-                .style('opacity', '0.6')
+                .style('opacity', '0.8')
+                .attr('data-date', d[0])
+
+            d3.select('#tooltip-date')
+                .text(() => {
+
+                    let dateArr = d[0].split('-').map(el => parseInt(el));
+                    let monthNum = dateArr[1];
+                    let yearNum = dateArr[0];
+                    let quarter = 1;
+
+                    switch(monthNum) {
+                        case 4:
+                            quarter = 2;
+                            break;
+                        case 7:
+                            quarter = 3;
+                            break;
+                        case 10:
+                            quarter = 4;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return `${yearNum} Q${quarter}`;
+                })
+                
+            d3.select('#tooltip')
+                .select('#tooltip-value')
+                .text(() => {
+                    return `$${d[1]} Billion`;
+                })
         })
         .on('mouseout', (d, i) => {
             d3.select('#tooltip')
-                // .style('left', `${scaleX(d[0])}px`)
                 .style('opacity', '0')
         })
 
