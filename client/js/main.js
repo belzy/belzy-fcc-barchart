@@ -24,27 +24,19 @@
     getData(data => {
 
         let dataset = data['data'];
-        // console.log(dataset);
-        // dataset = dataset.slice(0, 60);
-
-
-
        const dateArr = dataset.map(arr => arr[0]);
-       console.log(dateArr);
-        
 
-        const w = 500;
-        const h = 500;
+        const w = 1200;
+        const h = 600;
 
         const chartPadding = 40;
-        const barPadding = 0.5;
-        const minYear = dataset[0][0].split('-')[0];
-        const maxYear = dataset[dataset.length - 1][0].split('-')[0];
+        const barPadding = 0.19;
         const minGdp = 0; // dataset[0][1];
         const maxGdp = dataset[dataset.length - 1][1];
 
         // Scale X
         const scaleX = d3.scaleBand();
+        scaleX.paddingInner(barPadding);
         scaleX.domain(dateArr).range([chartPadding, w - chartPadding]);
 
         // Scale Y
@@ -74,7 +66,6 @@
         }
 
         // Axes
-        let prevYear = 0;
         const xAxis = d3.axisBottom(scaleX)
         .tickValues(getTickValuesFrom(dateArr))
         .tickFormat(d => getYearNumFromDate(d));
@@ -85,10 +76,6 @@
         const svgBarChart = d3.select('#title')
             .attr('width', w)
             .attr('height', h)
-
-            
-
-            
 
         // Render X Axis
         svgBarChart.append('g')
@@ -104,36 +91,60 @@
 
 
         // Rects
-        // let quarter = 0;
         svgBarChart.selectAll('rects')
         .data(dataset)
         .enter()
         .append('rect')
-
-
+        .attr('class', 'bar')
+        .attr('data-date', d => d[0])
+        .attr('data-gdp', d => d[1])
+        
         .attr('width', d => (scaleX.bandwidth()))
-        .attr('height', d => scaleY(d[1]))
+        .attr('height', d => h - scaleY(d[1]) - chartPadding)
 
-        .attr('x', d => {
-            // console.log(d)
-            // console.log(scaleX(d[0]))
-            return scaleX(d[0])}
-        )
+        .attr('x', d => scaleX(d[0]))
+        .attr('y', d => scaleY(d[1]))
+        .on('mouseenter', (d, i) => {
+            d3.select('#tooltip')
+                .style('left', `${scaleX(d[0]) + 20}px`)
+                .style('opacity', '0.8')
+                .attr('data-date', d[0])
 
-        // .attr('width', (w - (chartPadding * 2)) / dataset.length)
-        // .attr('height', (d, i) => d[1])
-        // .attr('x', (d, i) => i * chartPadding + ((w - (chartPadding * 2)) / dataset.length))
+            d3.select('#tooltip-date')
+                .text(() => {
 
-        // The y coordinate that is y = heightOfSVG - heightOfBar 
-        // would place the bars right-side-up. h - d[1] / 40
-        // .attr('y', (d, i) => h - d[1])
-        // .attr('fill', 'navy')
-        // .append('title')
-        // .text((d, i) => d)
+                    let dateArr = d[0].split('-').map(el => parseInt(el));
+                    let monthNum = dateArr[1];
+                    let yearNum = dateArr[0];
+                    let quarter = 1;
 
+                    switch(monthNum) {
+                        case 4:
+                            quarter = 2;
+                            break;
+                        case 7:
+                            quarter = 3;
+                            break;
+                        case 10:
+                            quarter = 4;
+                            break;
+                        default:
+                            break;
+                    }
 
-
-
+                    return `${yearNum} Q${quarter}`;
+                })
+                
+            d3.select('#tooltip')
+                .select('#tooltip-value')
+                .text(() => {
+                    return `$${d[1]} Billion`;
+                })
+        })
+        .on('mouseout', (d, i) => {
+            d3.select('#tooltip')
+                .style('opacity', '0')
+        })
 
     });
 
