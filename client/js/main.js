@@ -24,22 +24,13 @@
     getData(data => {
 
         let dataset = data['data'];
-        // console.log(dataset);
-        // dataset = dataset.slice(0, 60);
-
-
-
        const dateArr = dataset.map(arr => arr[0]);
-       console.log(dateArr);
-        
 
         const w = 1200;
         const h = 600;
 
         const chartPadding = 40;
         const barPadding = 0.19;
-        const minYear = dataset[0][0].split('-')[0];
-        const maxYear = dataset[dataset.length - 1][0].split('-')[0];
         const minGdp = 0; // dataset[0][1];
         const maxGdp = dataset[dataset.length - 1][1];
 
